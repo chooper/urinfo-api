@@ -15,6 +15,9 @@ from bs4 import BeautifulSoup
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 
+if os.environ.get('DEBUG', 0) > 1:
+    app.debug = True
+
 USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.34 (KHTML, like Gecko) Qt/4.8.3 Safari/534.34 urinfo"
 HEADERS = { 'User-Agent' : USERAGENT }
 
