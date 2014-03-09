@@ -4,7 +4,7 @@
 
 import unittest
 from app import app
-from app import urinfo
+from urinfo import urinfo
 
 
 class TestApp(unittest.TestCase):
