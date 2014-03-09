@@ -1,12 +1,12 @@
 # urinfo
 
-Capture some basic information associated with a given URL
+Capture some basic information associated with a given URI
 
 ## Usage
 
 ```
 heroku create
 git push heroku master
-curl http://localhost/fetch?url=http://www.google.com
+curl http://localhost/fetch?uri=http://www.google.com
 ```
 

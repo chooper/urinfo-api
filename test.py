@@ -39,7 +39,7 @@ class TestApp(unittest.TestCase):
         rv.close()
 
     def test_fetch_success(self):
-        rv = self.app.get('/fetch?url=http://example.com')
+        rv = self.app.get('/fetch?uri=http://example.com')
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 200)
         rv.close()
@@ -51,16 +51,16 @@ class TestApp(unittest.TestCase):
         rv.close()
 
     def test_fetch_failure(self):
-        rv = self.app.get('/fetch?url=http://this.uri.is.not.valid')
+        rv = self.app.get('/fetch?uri=http://this.uri.is.not.valid')
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 404)
         rv.close()
 
 def test_urinfo():
-    #{"url": "http://example.com", "title": "Example Domain", "content-type": "text/html", "content-length": "1270"}
+    #{"uri": "http://example.com", "title": "Example Domain", "content-type": "text/html", "content-length": "1270"}
     uri = 'http://example.com'
     result = urinfo(uri)
-    assert result['url'] == uri
+    assert result['uri'] == uri
     assert result['title'] == 'Example Domain'
 
 if __name__ == '__main__':

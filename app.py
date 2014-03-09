@@ -31,14 +31,14 @@ def home():
 
 @app.route('/fetch')
 def fetch():
-    url = request.args.get('url')
+    uri = request.args.get('uri')
 
-    # abort with 404 if url missing from query params
-    if url == None:
+    # abort with 404 if uri missing from query params
+    if uri == None:
         abort(404)
 
     # get urinfo
-    info = urinfo(url)
+    info = urinfo(uri)
 
     # if info is False or None, abort with 404
     if info == None or info == False:
@@ -51,7 +51,7 @@ def fetch():
 # Application logic
 ###
 
-def urinfo( url ):
+def urinfo( uri ):
     """
     Accept a uri and return info on HEAD request success.
     Return False on HEAD request failure.
@@ -59,7 +59,7 @@ def urinfo( url ):
     """
 
     try:
-        result = requests.head( url, headers=HEADERS, allow_redirects=True, timeout=4.0 )
+        result = requests.head( uri, headers=HEADERS, allow_redirects=True, timeout=4.0 )
     except requests.ConnectionError:
         return False
 
@@ -67,13 +67,13 @@ def urinfo( url ):
         return result
 
     info = {}
-    info['url'] = url
+    info['uri'] = uri
     info['content-type'] = result.headers.get('content-type')
     info['content-length'] = result.headers.get('content-length')
 
     # content-type could be NoneType which is not iterable.
     if 'html' in (info['content-type'] or ''):
-        result = requests.get( url )
+        result = requests.get( uri )
         soup = BeautifulSoup( result.content )
         if soup.title:
             info['title'] = soup.title.string.replace( '\n', ' ' ).encode('ascii', 'replace')
