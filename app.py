@@ -56,6 +56,7 @@ def urinfo( msg ):
 
             info['content-type'] = result.headers.get('content-type')
             if info['content-type']:
+                info['url'] = word
                 if 'html' in result.headers['content-type']:
                     result = requests.get( word )
                     soup = BeautifulSoup( result.content )
