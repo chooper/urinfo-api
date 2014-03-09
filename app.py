@@ -44,31 +44,24 @@ def fetch():
 # Application logic
 ###
 
-def urinfo( msg ):
+def urinfo( url ):
     info = {}
-    words = msg.split()
-    for word in words:
-        if '://' in word:
-            result = requests.head( word, headers=HEADERS, allow_redirects=True, timeout=4.0 )
+    result = requests.head( url, headers=HEADERS, allow_redirects=True, timeout=4.0 )
 
-            if not result:
-                continue
+    if not result:
+        abort(404)
 
-            info['content-type'] = result.headers.get('content-type')
-            if info['content-type']:
-                info['url'] = word
-                if 'html' in result.headers['content-type']:
-                    result = requests.get( word )
-                    soup = BeautifulSoup( result.content )
-                    if soup.title: # if there is a title, append it to output 
-                        info['title'] = soup.title.string.replace( '\n', ' ' ).encode('ascii', 'replace')
+    info['url'] = url
+    info['content-type'] = result.headers.get('content-type')
+    info['content-length'] = result.headers.get('content-length')
 
-                try:
-                    info['content-length'] = int(result.headers.get('content-length'))
-                except:
-                    pass
-            return info
-    return False
+    if 'html' in (info['content-type'] or ''):
+        result = requests.get( url )
+        soup = BeautifulSoup( result.content )
+        if soup.title:
+            info['title'] = soup.title.string.replace( '\n', ' ' ).encode('ascii', 'replace')
+
+    return info
 
 
 ###
@@ -101,12 +94,12 @@ def page_not_found(error):
 
 if __name__ == '__main__':
     messages = [
-      'check out: https://linkpeek.com for webpage screenshots',
-      'http://russell.ballestrini.net for a good read',
+      'https://linkpeek.com',
+      'http://russell.ballestrini.net',
       'http://www.skills-1st.co.uk/papers/jane/ukuug_march09_zenoss.pdf',
-      'erbody dance http://www.youtube.com/watch?v=12VUjgYMm1U',
-      'OUCH! http://russell.ballestrini.net/wp-content/uploads/2012/06/dedication-eye-chemical-burn.jpg',
-      'a http://www.barackobama.com/ asdf',
+      'http://www.youtube.com/watch?v=12VUjgYMm1U',
+      'http://russell.ballestrini.net/wp-content/uploads/2012/06/dedication-eye-chemical-burn.jpg',
+      'http://www.barackobama.com/',
       'http://words.gumyum.com/',
     ]
 
