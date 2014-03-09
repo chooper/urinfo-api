@@ -10,3 +10,9 @@ git push heroku master
 curl http://localhost/fetch?uri=http://www.google.com
 ```
 
+## Tests
+
+```
+nosetests
+```
+

@@ -4,7 +4,8 @@
 
 import unittest
 from app import app
-from app import urinfo
+from urinfo import urinfo
+from urinfo import _sanitize_html_title
 
 
 class TestApp(unittest.TestCase):
@@ -56,12 +57,23 @@ class TestApp(unittest.TestCase):
         self.assertEqual(rv.status_code, 404)
         rv.close()
 
-def test_urinfo():
+def test_urinfo_success():
     #{"uri": "http://example.com", "title": "Example Domain", "content-type": "text/html", "content-length": "1270"}
     uri = 'http://example.com'
     result = urinfo(uri)
     assert result['uri'] == uri
     assert result['title'] == 'Example Domain'
+
+def test_urinfo_failure_is_false():
+    uri = 'http://this.uri.is.not.valid'
+    result = urinfo(uri)
+    assert result == False
+
+def test_sanitize_html_title_removes_newlines():
+    title = 'this is a title\nwith \n a newline.'
+    sanitize_title = _sanitize_html_title(title)
+    assert title != sanitize_title
+    assert '\n' not in sanitize_title
 
 if __name__ == '__main__':
     unittest.main()
