@@ -34,7 +34,11 @@ def urinfo( uri ):
             result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
             soup = BeautifulSoup(result.content)
             if soup.title:
-                # replace all newlines with a space, encode all characters to ascii
-                info['title'] = soup.title.string.replace('\n', ' ').encode('ascii', 'replace')
+                info['title'] = _sanitize_html_title(soup.title.string)
 
     return info
+
+def _sanitize_html_title(title):
+    """Accept an HTML title (string) and sanitize for output"""
+    # replace all newlines with a space, encode all characters to ascii
+    return title.replace('\n', ' ')
