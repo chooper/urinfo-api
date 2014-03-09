@@ -11,12 +11,11 @@ from flask import Flask, render_template, request, redirect, url_for, abort
 import json
 import requests
 from bs4 import BeautifulSoup
-from hurry.filesize import size
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 
-USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.34 (KHTML, like Gecko) Qt/4.8.3 Safari/534.34 https://bitbucket.org/russellballestrini/foxbot"
+USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.34 (KHTML, like Gecko) Qt/4.8.3 Safari/534.34 urinfo"
 HEADERS = { 'User-Agent' : USERAGENT }
 
 
@@ -34,10 +33,18 @@ def home():
 def fetch():
     url = request.args.get('url')
 
-    if not url:
+    # abort with 404 if url missing from query params
+    if url == None:
         abort(404)
 
-    return json.dumps(urinfo(url))
+    # get urinfo
+    info = urinfo(url)
+
+    # if info is False or None, abort with 404
+    if info == None or info == False:
+        abort(404)
+
+    return json.dumps(info)
 
 
 ###
@@ -45,16 +52,26 @@ def fetch():
 ###
 
 def urinfo( url ):
-    info = {}
-    result = requests.head( url, headers=HEADERS, allow_redirects=True, timeout=4.0 )
+    """
+    Accept a uri and return info on HEAD request success.
+    Return False on HEAD request failure.
+    Return None if HEAD request is not True.
+    """
+
+    try:
+        result = requests.head( url, headers=HEADERS, allow_redirects=True, timeout=4.0 )
+    except requests.ConnectionError:
+        return False
 
     if not result:
-        abort(404)
+        return result
 
+    info = {}
     info['url'] = url
     info['content-type'] = result.headers.get('content-type')
     info['content-length'] = result.headers.get('content-length')
 
+    # content-type could be NoneType which is not iterable.
     if 'html' in (info['content-type'] or ''):
         result = requests.get( url )
         soup = BeautifulSoup( result.content )
@@ -93,19 +110,6 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    messages = [
-      'https://linkpeek.com',
-      'http://russell.ballestrini.net',
-      'http://www.skills-1st.co.uk/papers/jane/ukuug_march09_zenoss.pdf',
-      'http://www.youtube.com/watch?v=12VUjgYMm1U',
-      'http://russell.ballestrini.net/wp-content/uploads/2012/06/dedication-eye-chemical-burn.jpg',
-      'http://www.barackobama.com/',
-      'http://words.gumyum.com/',
-    ]
-
-    for message in messages:
-        print urinfo( message )
 
     app.run(debug=True)
-
 
