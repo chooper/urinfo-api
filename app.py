@@ -7,8 +7,12 @@ This file creates your application.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for, abort
+
 import json
+
+from flask import Flask
+from flask import Response
+from flask import render_template, request, redirect, url_for, abort
 
 from urinfo import urinfo
 
@@ -43,7 +47,9 @@ def fetch():
     if info == None or info == False:
         abort(404)
 
-    return json.dumps(info)
+    info_json = json.dumps(info)
+
+    return Response(info_json, status=200, mimetype="application/json")
 
 
 ###
