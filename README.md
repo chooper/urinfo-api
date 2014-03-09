@@ -1,4 +1,4 @@
-# urinfo
+# urinfo-api
 
 Capture some basic information associated with a given URI
 
