@@ -43,6 +43,7 @@ class TestApp(unittest.TestCase):
         rv = self.app.get('/fetch?uri=http://example.com')
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.mimetype, 'application/json')
         rv.close()
 
     def test_fetch_missing_uri(self):
