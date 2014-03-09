@@ -8,6 +8,7 @@ This file creates your application.
 
 import os
 from flask import Flask, render_template, request, redirect, url_for, abort
+import json
 import requests
 from bs4 import BeautifulSoup
 from hurry.filesize import size
@@ -36,7 +37,7 @@ def fetch():
     if not url:
         abort(404)
 
-    return urinfo(url)
+    return json.dumps(urinfo(url))
 
 
 ###
@@ -44,7 +45,7 @@ def fetch():
 ###
 
 def urinfo( msg ):
-    output = []
+    info = {}
     words = msg.split()
     for word in words:
         if '://' in word:
@@ -52,24 +53,20 @@ def urinfo( msg ):
 
             if not result:
                 continue
-            #print result.__dict__
-            if result.headers.get('content-type'):
+
+            info['content-type'] = result.headers.get('content-type')
+            if info['content-type']:
                 if 'html' in result.headers['content-type']:
                     result = requests.get( word )
                     soup = BeautifulSoup( result.content )
                     if soup.title: # if there is a title, append it to output 
-                        output.append( soup.title.string.replace( '\n', ' ' ) )
+                        info['title'] = soup.title.string.replace( '\n', ' ' ).encode('ascii', 'replace')
 
-                else:
-                    output.append( result.headers['content-type'] )
-
-                if result.headers.get('content-length'):
-                    contentlength = int( result.headers['content-length'] )
-                    output.append( size( contentlength ) )
-
-    if output:
-        return ' '.join( output ).encode( 'ascii', 'replace' )
-
+                try:
+                    info['content-length'] = int(result.headers.get('content-length'))
+                except:
+                    pass
+            return info
     return False
 
 
@@ -102,6 +99,19 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
+    messages = [
+      'check out: https://linkpeek.com for webpage screenshots',
+      'http://russell.ballestrini.net for a good read',
+      'http://www.skills-1st.co.uk/papers/jane/ukuug_march09_zenoss.pdf',
+      'erbody dance http://www.youtube.com/watch?v=12VUjgYMm1U',
+      'OUCH! http://russell.ballestrini.net/wp-content/uploads/2012/06/dedication-eye-chemical-burn.jpg',
+      'a http://www.barackobama.com/ asdf',
+      'http://words.gumyum.com/',
+    ]
+
+    for message in messages:
+        print urinfo( message )
+
     app.run(debug=True)
 
 
