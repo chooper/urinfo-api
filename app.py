@@ -53,7 +53,7 @@ def urinfo( msg ):
             if not result:
                 continue
             #print result.__dict__
-            if result.headers['content-type']:
+            if result.headers.get('content-type'):
                 if 'html' in result.headers['content-type']:
                     result = requests.get( word )
                     soup = BeautifulSoup( result.content )
