@@ -27,8 +27,10 @@ def urinfo( uri ):
     info = {}
     info['uri'] = uri
 
-    # TODO: Exclude cookies and possibly some other headers
+    # copy headers into our return obj (except for cookies)
     info['headers'] = dict(result.headers)
+    if 'set-cookie' in info['headers']:
+        del info['headers']['set-cookie']
 
     # the next 2 headers left for backwards compatibility
     info['content-type'] = result.headers.get('content-type', None)
