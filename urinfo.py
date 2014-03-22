@@ -32,10 +32,6 @@ def urinfo( uri ):
     if 'set-cookie' in info['headers']:
         del info['headers']['set-cookie']
 
-    # the next 2 headers left for backwards compatibility
-    info['content-type'] = result.headers.get('content-type', None)
-    info['content-length'] = result.headers.get('content-length', None)
-
     if info['headers'].get('content-type') != None:
         if 'html' in info['headers']['content-type']:
             result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
