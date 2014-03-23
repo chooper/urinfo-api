@@ -8,10 +8,8 @@ This file creates your application.
 
 import os
 
-import json
-
 from flask import Flask
-from flask import Response
+from flask import jsonify
 from flask import render_template, request, redirect, url_for, abort
 
 from urinfo import urinfo
@@ -47,9 +45,7 @@ def fetch():
     if info == None or info == False:
         abort(404)
 
-    info_json = json.dumps(info)
-
-    return Response(info_json, status=200, mimetype="application/json")
+    return jsonify(**info)
 
 
 ###
