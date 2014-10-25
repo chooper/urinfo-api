@@ -51,6 +51,10 @@ def fetch():
     if uri == None:
         abort(404)
 
+    # abort with 404 if uri is not a HTTP(s) uri
+    if not uri.lower().startswith("http"):
+        abort(404)
+
     # get urinfo
     info = urinfo(uri)
 
