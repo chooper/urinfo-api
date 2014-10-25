@@ -36,7 +36,7 @@ def urinfo( uri ):
         if 'html' in info['headers']['content-type']:
             result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
             soup = BeautifulSoup(result.content)
-            if soup.title:
+            if soup.title and soup.title.string:
                 info['title'] = _sanitize_html_title(soup.title.string)
 
     return info
