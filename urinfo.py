@@ -19,9 +19,10 @@ def urinfo( uri ):
         result = requests.head(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
     except requests.ConnectionError:
         return False
+    except requests.Timeout:
+        return False
 
     if not result:
-        #return result
         return False
 
     info = {}
@@ -34,7 +35,11 @@ def urinfo( uri ):
 
     if info['headers'].get('content-type') != None:
         if 'html' in info['headers']['content-type']:
-            result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
+            try:
+                result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
+            except requests.Timeout:
+                return False
+
             soup = BeautifulSoup(result.content)
             if soup.title and soup.title.string:
                 info['title'] = _sanitize_html_title(soup.title.string)
@@ -45,3 +50,4 @@ def _sanitize_html_title(title):
     """Accept an HTML title (string) and sanitize for output"""
     # replace all newlines with a space, encode all characters to ascii
     return title.replace('\n', ' ')
+
