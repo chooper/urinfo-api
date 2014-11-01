@@ -37,12 +37,6 @@ if rollbar_access_key:
 # Routing for your application.
 ###
 
-@app.route('/')
-def home():
-    """Render website's home page."""
-    return render_template('home.html')
-
-
 @app.route('/fetch')
 def fetch():
     uri = request.args.get('uri')
@@ -94,6 +88,5 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-
     app.run(debug=True)
 

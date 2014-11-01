@@ -13,10 +13,10 @@ class TestApp(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
 
-    def test_home_page_works(self):
+    def test_home_page_dead(self):
         rv = self.app.get('/')
         self.assertTrue(rv.data)
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 404)
 
     # we removed this page?
     #def test_about_page_works(self):
