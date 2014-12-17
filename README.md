@@ -2,11 +2,15 @@
 
 Capture some basic information associated with a given URI
 
+## Installation
+
+Use the Heroku button below!
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
 ## Usage
 
 ```
-heroku create
-git push heroku master
 curl http://localhost/fetch?uri=http://www.google.com
 {
   "headers": {

@@ -1,0 +1,6 @@
+{
+  "name": "urinfo api",
+  "description": "A basic API for returning info about a given URI",
+  "repository": "https://github.com/chooper/urinfo-api",
+  "keywords": ["api", "uri", "url", "python", "flask"]
+}
