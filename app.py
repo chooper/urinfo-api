@@ -16,11 +16,12 @@ import rollbar.contrib.flask
 from urinfo import urinfo
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 
+# set debug mode
 if os.environ.get('DEBUG', 0) > 1:
     app.debug = True
 
+# configure rollbar
 rollbar_access_key = os.environ.get('ROLLBAR_ACCESS_KEY')
 if rollbar_access_key:
     rollbar.init(
@@ -33,9 +34,16 @@ if rollbar_access_key:
     # send exceptions from `app` to rollbar, using flask's signal system.
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
+
 ###
 # Routing for your application.
 ###
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Send robots.txt."""
+    return send_text_file('robots')
+
 
 @app.route('/fetch')
 def fetch():
@@ -59,13 +67,8 @@ def fetch():
     return jsonify(**info)
 
 
-###
-# The functions below should be applicable to all Flask apps.
-###
-
-@app.route('/<file_name>.txt')
 def send_text_file(file_name):
-    """Send your static text file."""
+    """Send static text files."""
     file_dot_text = file_name + '.txt'
     return app.send_static_file(file_dot_text)
 
@@ -73,10 +76,8 @@ def send_text_file(file_name):
 @app.after_request
 def add_header(response):
     """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for 10 minutes.
+    Add headers and also to cache the rendered page for 10 minutes.
     """
-    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=600'
     return response
 
