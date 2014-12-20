@@ -18,17 +18,6 @@ class TestApp(unittest.TestCase):
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 404)
 
-    # we removed this page?
-    #def test_about_page_works(self):
-    #    rv = self.app.get('/about/')
-    #    self.assertTrue(rv.data)
-    #    self.assertEqual(rv.status_code, 200)
-
-    # page /about missing so redirect to /about/ broke ...
-    #def test_default_redirecting(self):
-    #    rv = self.app.get('/about')
-    #    self.assertEqual(rv.status_code, 301)
-
     def test_404_page(self):
         rv = self.app.get('/i-am-not-found/')
         self.assertEqual(rv.status_code, 404)
