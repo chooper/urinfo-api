@@ -34,9 +34,24 @@ class TestWebApp(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         rv.close()
 
+    @responses.activate
     def test_fetch_success(self):
-        """Test /fetch returns a correct response for example.com"""
-        uri = 'http://example.com'
+        """Test /fetch returns a correct response for a successful URL"""
+        uri = 'http://255.255.255.255/'
+
+        def head_callback(req):
+            body = 'something'
+            headers = {'content-type': 'text/html'}
+            return (200, headers, body)
+
+        def get_callback(req):
+            body = '<!doctype html><html><head><title>Test Title</title></head></html>'
+            headers = {'content-type': 'text/html'}
+            return (200, headers, body)
+
+        responses.add_callback(responses.HEAD, uri, callback=head_callback, content_type='text/html')
+        responses.add_callback(responses.GET,  uri, callback=get_callback,  content_type='text/html')
+
         rv = self.app.get('/fetch?uri={0}'.format(uri))
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 200)
@@ -50,9 +65,13 @@ class TestWebApp(unittest.TestCase):
         self.assertEqual(rv.status_code, 404)
         rv.close()
 
+    @responses.activate
     def test_fetch_failure(self):
         """Test /fetch returns a 404 for an invalid uri"""
-        rv = self.app.get('/fetch?uri=http://this.uri.is.not.valid')
+        uri = 'http://255.255.255.255/'
+        responses.add(responses.GET, uri, body=requests.ConnectionError())
+
+        rv = self.app.get('/fetch?uri={0}'.format(uri))
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 404)
         rv.close()
