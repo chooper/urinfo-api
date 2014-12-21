@@ -17,9 +17,7 @@ def urinfo( uri ):
 
     try:
         result = requests.head(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
-    except requests.ConnectionError:
-        return False
-    except requests.Timeout:
+    except (requests.ConnectionError, requests.Timeout, requests.HTTPError):
         return False
 
     if not result:
@@ -38,7 +36,7 @@ def urinfo( uri ):
         if 'html' in info['headers']['content-type']:
             try:
                 result = requests.get(uri, headers=HEADERS, allow_redirects=True, timeout=4.0)
-            except requests.Timeout:
+            except (requests.ConnectionError, requests.Timeout, requests.HTTPError):
                 return False
 
             soup = BeautifulSoup(result.content)

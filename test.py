@@ -2,10 +2,13 @@
 
 import unittest
 import responses
+import requests
 from app import app
 from urinfo import urinfo
 from urinfo import _sanitize_html_title
 
+# One minor note about the `responses` lib... it apparently requires
+# a trailing '/' on hostnames or it will throw requests.ConnectionError
 
 class TestWebApp(unittest.TestCase):
     """Test the web app"""
@@ -58,12 +61,6 @@ class TestWebApp(unittest.TestCase):
 class TestUrinfo(unittest.TestCase):
     """Test the urinfo library"""
 
-    def test_urinfo_failure_is_false(self):
-        """Test that DNS resolution or connection failures return False"""
-        uri = 'http://this.uri.is.not.valid'
-        result = urinfo(uri)
-        assert result == False
-
     def test_sanitize_html_title_removes_newlines(self):
         """Test that we strip newlines from titles"""
         title = 'this is a title\nwith \n a newline.'
@@ -73,7 +70,7 @@ class TestUrinfo(unittest.TestCase):
 
     @responses.activate
     def test_urinfo_success(self):
-        """Test fetching a url"""
+        """Test fetching a url on the happy path"""
 
         uri = 'http://255.255.255.255/'
 
@@ -83,15 +80,77 @@ class TestUrinfo(unittest.TestCase):
             return (200, headers, body)
 
         def get_callback(req):
-            body = '<!doctype html><html><head><title>Example Domain</title></head></html>'
+            body = '<!doctype html><html><head><title>Test Title</title></head></html>'
             headers = {'content-type': 'text/html'}
             return (200, headers, body)
 
         responses.add_callback(responses.HEAD, uri, callback=head_callback, content_type='text/html')
         responses.add_callback(responses.GET,  uri, callback=get_callback,  content_type='text/html')
+
         result = urinfo(uri)
         self.assertEqual(result['uri'], uri)
-        self.assertEqual(result['title'], 'Example Domain')
+        self.assertEqual(result['title'], 'Test Title')
+
+    @responses.activate
+    def test_urinfo_connection_error_get(self):
+        """Test that a connection error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during GET
+        responses.add(responses.GET, uri, body=requests.ConnectionError())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
+    @responses.activate
+    def test_urinfo_connection_error_head(self):
+        """Test that a connection error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during HEAD
+        responses.add(responses.HEAD, uri, body=requests.ConnectionError())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
+    @responses.activate
+    def test_urinfo_timeout_get(self):
+        """Test that a timeout error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during GET
+        responses.add(responses.GET, uri, body=requests.Timeout())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
+    @responses.activate
+    def test_urinfo_timeout_head(self):
+        """Test that a timeout error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during HEAD
+        responses.add(responses.HEAD, uri, body=requests.Timeout())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
+    @responses.activate
+    def test_urinfo_http_error_get(self):
+        """Test that a http error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during GET
+        responses.add(responses.GET, uri, body=requests.HTTPError())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
+    @responses.activate
+    def test_urinfo_http_error_head(self):
+        """Test that a http error during urinfo returns False"""
+        uri = 'http://255.255.255.255/'
+
+        # test error during HEAD
+        responses.add(responses.HEAD, uri, body=requests.HTTPError())
+        result = urinfo(uri)
+        self.assertEqual(result, False)
+
 
 if __name__ == '__main__':
     unittest.main()
