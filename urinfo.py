@@ -29,7 +29,8 @@ def urinfo( uri ):
     info['uri'] = uri
 
     # copy headers into our return obj (except for cookies)
-    info['headers'] = dict(result.headers)
+    # HACK the lowercasing is for the `responses` library which is used for mocking requests (testing only)
+    info['headers'] = dict((k.lower(), v) for k,v in result.headers.iteritems())
     if 'set-cookie' in info['headers']:
         del info['headers']['set-cookie']
 

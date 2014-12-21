@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+import responses
 from app import app
 from urinfo import urinfo
 from urinfo import _sanitize_html_title
@@ -32,8 +33,8 @@ class TestWebApp(unittest.TestCase):
 
     def test_fetch_success(self):
         """Test /fetch returns a correct response for example.com"""
-        # TODO mock this
-        rv = self.app.get('/fetch?uri=http://example.com')
+        uri = 'http://example.com'
+        rv = self.app.get('/fetch?uri={0}'.format(uri))
         self.assertTrue(rv.data)
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.mimetype, 'application/json')
@@ -57,14 +58,6 @@ class TestWebApp(unittest.TestCase):
 class TestUrinfo(unittest.TestCase):
     """Test the urinfo library"""
 
-    def test_urinfo_success(self):
-        """Test fetching a url"""
-        #{"uri": "http://example.com", "title": "Example Domain", "content-type": "text/html", "content-length": "1270"}
-        uri = 'http://example.com'
-        result = urinfo(uri)
-        assert result['uri'] == uri
-        assert result['title'] == 'Example Domain'
-
     def test_urinfo_failure_is_false(self):
         """Test that DNS resolution or connection failures return False"""
         uri = 'http://this.uri.is.not.valid'
@@ -77,6 +70,28 @@ class TestUrinfo(unittest.TestCase):
         sanitize_title = _sanitize_html_title(title)
         assert title != sanitize_title
         assert '\n' not in sanitize_title
+
+    @responses.activate
+    def test_urinfo_success(self):
+        """Test fetching a url"""
+
+        uri = 'http://255.255.255.255/'
+
+        def head_callback(req):
+            body = 'something'
+            headers = {'content-type': 'text/html'}
+            return (200, headers, body)
+
+        def get_callback(req):
+            body = '<!doctype html><html><head><title>Example Domain</title></head></html>'
+            headers = {'content-type': 'text/html'}
+            return (200, headers, body)
+
+        responses.add_callback(responses.HEAD, uri, callback=head_callback, content_type='text/html')
+        responses.add_callback(responses.GET,  uri, callback=get_callback,  content_type='text/html')
+        result = urinfo(uri)
+        self.assertEqual(result['uri'], uri)
+        self.assertEqual(result['title'], 'Example Domain')
 
 if __name__ == '__main__':
     unittest.main()
