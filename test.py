@@ -84,8 +84,16 @@ class TestUrinfo(unittest.TestCase):
         """Test that we strip newlines from titles"""
         title = 'this is a title\nwith \n a newline.'
         sanitize_title = _sanitize_html_title(title)
-        assert title != sanitize_title
-        assert '\n' not in sanitize_title
+        self.assertTrue(title != sanitize_title)
+        self.assertTrue('\n' not in sanitize_title)
+
+    def test_sanitize_html_title_removes_repetitive_whitespace(self):
+        """Test that we remove repetitive whitespace"""
+        title = 'this is a title        with extra whitespace.'
+        sanitize_title = _sanitize_html_title(title)
+        self.assertTrue(title != sanitize_title)
+        self.assertTrue('  ' not in sanitize_title)
+        self.assertTrue(' ' in sanitize_title)
 
     @responses.activate
     def test_urinfo_success(self):
