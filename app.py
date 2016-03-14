@@ -50,7 +50,7 @@ def fetch():
     uri = request.args.get('uri')
 
     # abort with 404 if uri missing from query params
-    if uri == None:
+    if uri is None:
         abort(404)
 
     # abort with 404 if uri is not a HTTP(s) uri
@@ -61,7 +61,7 @@ def fetch():
     info = urinfo(uri)
 
     # if info is False or None, abort with 404
-    if info == None or info == False:
+    if info is None or info is False:
         abort(404)
 
     return jsonify(**info)

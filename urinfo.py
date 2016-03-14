@@ -47,6 +47,6 @@ def urinfo( uri ):
 
 def _sanitize_html_title(title):
     """Accept an HTML title (string) and sanitize for output"""
-    # replace all newlines with a space, encode all characters to ascii
-    return title.replace('\n', ' ')
+    # split on whitespace, then create new string joining items with a space.
+    return ' '.join(title.split())
 
